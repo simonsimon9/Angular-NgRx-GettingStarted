@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
-import { Subscription } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 
 import { Product } from '../product';
 import { ProductService } from '../product.service';
@@ -15,12 +15,13 @@ NgRX
 import {Store} from '@ngrx/store';
 import { State, getCurrentProduct } from '../state/product.reducer'
 import * as ProductActions from '../state/product.actions'
+import { tap } from 'rxjs/operators';
 
 @Component({
   selector: 'pm-product-edit',
   templateUrl: './product-edit.component.html'
 })
-export class ProductEditComponent implements OnInit, OnDestroy {
+export class ProductEditComponent implements OnInit {
   pageTitle = 'Product Edit';
   errorMessage = '';
   productForm: FormGroup;
@@ -32,6 +33,7 @@ export class ProductEditComponent implements OnInit, OnDestroy {
   displayMessage: { [key: string]: string } = {};
   private validationMessages: { [key: string]: { [key: string]: string } };
   private genericValidator: GenericValidator;
+  product$: Observable<Product> | null;
 
   constructor(private store: Store<State>, private fb: FormBuilder, private productService: ProductService) {
 
@@ -66,9 +68,9 @@ export class ProductEditComponent implements OnInit, OnDestroy {
     });
 
     // Watch for changes to the currently selected product
-    this.store.select(getCurrentProduct).subscribe(
+    this.product$ = this.store.select(getCurrentProduct).pipe(tap(
       currentProduct => this.displayProduct(currentProduct)
-    );
+    ));
 
     // Watch for value changes for validation
     this.productForm.valueChanges.subscribe(
@@ -76,9 +78,6 @@ export class ProductEditComponent implements OnInit, OnDestroy {
     );
   }
 
-  ngOnDestroy(): void {
-    this.sub.unsubscribe();
-  }
 
   // Also validate on blur
   // Helpful if the user tabs through required fields
@@ -88,7 +87,6 @@ export class ProductEditComponent implements OnInit, OnDestroy {
 
   displayProduct(product: Product | null): void {
     // Set the local product property
-    this.product = product;
 
     if (product) {
       // Reset the form back to pristine
