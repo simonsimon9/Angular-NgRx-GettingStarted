@@ -6,7 +6,7 @@ import { State } from '../state/app.state';
 
 import { AuthService } from './auth.service';
 import { getMaskUserCheck, UserState } from './state/user.reducer';
-
+import * as UserActions from '../user/state/user.actions'
 @Component({
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css']
@@ -32,9 +32,7 @@ export class LoginComponent implements OnInit {
 
   checkChanged(): void {
     //this.maskUserName = !this.maskUserName;
-    this.store.dispatch(
-      {type: '[User] Mask User Name'}
-    );
+    this.store.dispatch(UserActions.maskUserName())
 
   }
 
