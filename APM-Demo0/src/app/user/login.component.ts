@@ -7,6 +7,9 @@ import { State } from '../state/app.state';
 import { AuthService } from './auth.service';
 import { getMaskUserCheck, UserState } from './state/user.reducer';
 import * as UserActions from '../user/state/user.actions'
+import { Observable } from 'rxjs';
+import { User } from './user';
+import { tap } from 'rxjs/operators';
 @Component({
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css']
@@ -15,15 +18,15 @@ export class LoginComponent implements OnInit {
   pageTitle = 'Log In';
 
   maskUserName: boolean;
-
+  maskUserName$: Observable<boolean> | null;
   constructor(private store: Store<State>, private authService: AuthService, private router: Router) { }
 
   ngOnInit(): void {
-    this.store.select(getMaskUserCheck).subscribe(
+    this.maskUserName$ = this.store.select(getMaskUserCheck).pipe(tap(
       maskUserNames =>{
         this.maskUserName = maskUserNames
       }
-    )
+    ));
   }
 
   cancel(): void {
